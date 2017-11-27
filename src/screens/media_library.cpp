@@ -155,6 +155,11 @@ public:
 		else
 		{
 			int result;
+			if (!hasTwoColumns && Config.media_lib_primary_tag == MPD_TAG_GENRE) {
+				result = m_cmp(a.albumartist(), b.albumartist());
+				if (result != 0)
+					return result < 0;
+			}
 			result = m_cmp(a.tag(), b.tag());
 			if (result != 0)
 				return result < 0;
@@ -393,10 +398,10 @@ void MediaLibrary::update()
 				auto &primary_tag = Tags.current()->value().tag();
 				Mpd.StartSearch(true);
 				Mpd.AddSearch(Config.media_lib_primary_tag, primary_tag);
-				std::map<std::tuple<std::string, std::string>, time_t> albums;
+				std::map<std::tuple<std::string, std::string, std::string>, time_t> albums;
 				for (MPD::SongIterator s = Mpd.CommitSearchSongs(), end; s != end; ++s)
 				{
-					auto key = std::make_tuple(s->getAlbum(), Date_(s->getDate()));
+					auto key = std::make_tuple(s->getAlbum(), Date_(s->getDate()), s->getAlbumArtist());
 					auto it = albums.find(key);
 					if (it == albums.end())
 						albums[std::move(key)] = s->getMTime();
@@ -410,6 +415,7 @@ void MediaLibrary::update()
 						Album(primary_tag,
 						      std::move(std::get<0>(album.first)),
 						      std::move(std::get<1>(album.first)),
+						      std::move(std::get<2>(album.first)),
 						      album.second));
 					if (idx < Albums.size())
 					{
@@ -1074,6 +1080,9 @@ std::string AlbumToString(const AlbumEntry &ae)
 				result += Config.empty_tag;
 			else
 				result += ae.entry().tag();
+			result += " - ";
+		} else if (Config.media_lib_primary_tag == MPD_TAG_GENRE) {
+			result += ae.entry().albumartist();
 			result += " - ";
 		}
 		if (Config.media_lib_primary_tag != MPD_TAG_DATE && !ae.entry().date().empty())

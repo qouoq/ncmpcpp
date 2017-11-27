@@ -102,16 +102,23 @@ struct MediaLibrary: Screen<NC::Window *>, Filterable, HasColumns, HasSongs, Sea
 		Album(std::string tag_, std::string album_, std::string date_, time_t mtime_)
 		: m_tag(std::move(tag_)), m_album(std::move(album_))
 		, m_date(std::move(date_)), m_mtime(mtime_) { }
+
+		Album(std::string tag_, std::string album_, std::string date_, std::string albumartist_, time_t mtime_)
+		: m_tag(std::move(tag_)), m_album(std::move(album_))
+		, m_date(std::move(date_)), m_albumartist(std::move(albumartist_))
+		, m_mtime(mtime_) { }
 		
 		const std::string &tag() const { return m_tag; }
 		const std::string &album() const { return m_album; }
 		const std::string &date() const { return m_date; }
+		const std::string &albumartist() const { return m_albumartist; }
 		time_t mtime() const { return m_mtime; }
 		
 	private:
 		std::string m_tag;
 		std::string m_album;
 		std::string m_date;
+		std::string m_albumartist;
 		time_t m_mtime;
 	};
 	
